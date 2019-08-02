@@ -16,3 +16,5 @@ cloud = cyni.depthMapToPointCloud(depthFrame.data, depthStream)
 cyni.writePCD(cloud, "cloud_bin.pcd")
 readCloud = cyni.readPCD("cloud_bin.pcd")
 cyni.writePCD(readCloud, "cloud_ascii.pcd", ascii=True)
+
+device.close()
