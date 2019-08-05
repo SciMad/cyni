@@ -3,13 +3,12 @@ import numpy as np
 from PIL import Image
 import time
 
-class SimpleCapture(object):
+class SimpleCapture:
     """docstring for SimpleCapture
     Simple class to capture frames of depthmap and ir images
     """
-    def __init__(self, arg=None):
-        super(SimpleCapture, self).__init__()
-        self.arg = arg
+    def __init__(self):
+        pass
         
     def setup_cature(self):
         cyni.initialize()
@@ -30,17 +29,29 @@ class SimpleCapture(object):
         # colorFrame = colorStream.readFrame()
         print (max(self.irFrame.data.tolist()))
 
+
+        # TODO : Review depthMapToImage in the code below
+        # TODO : Does the function depthMapToImage apply to irFrame as well????
+
         depthImage = Image.fromarray(cyni.depthMapToImage(self.depthFrame.data))
         irImage = Image.fromarray(cyni.depthMapToImage(self.irFrame.data))
         #colorImage = Image.fromarray(colorFrame.data)
         
         if (save==1):
-            
+            timestamp = time.time()
             depthImage.save("capture/depth"+str(timestamp)+".png")
             #colorImage.save("capture/color"+str(timestamp)+".png")
             irImage.save("capture/ir"+str(timestamp)+".png")
 
-        return depthImage, irImage #colorImage
+        return depthImage, irImage #, colorImage
     
     def end_capture(self):
         self.device.close()
+
+if __name__ == "__main__":
+    depth_capture = SimpleCapture()
+    depth_capture.setup_cature()
+    depthImg, irImg = depth_capture.get_next_frame()
+    print depthImg, irImg
+    
+
