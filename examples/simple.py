@@ -23,27 +23,55 @@ class SimpleCapture:
         self.irStream.start()
         # colorStream.start()
 
-    def get_next_frame(self, save=0):
+    def get_next_frame_clean(self, save=1):
+        self.depthStream.start()
+        self.depthFrame = self.depthStream.readFrame()
+        self.depthStream.stop()
+        self.irFrame = self.irStream.readFrame()
+
+        # colorFrame = colorStream.readFrame()
+    
+        # TODO : Review depthMapToImage in the code below
+        # TODO : Does the function depthMapToImage apply to irFrame as well????
+
+        depthImage = None
+        depthImage = Image.fromarray(cyni.depthMapToImage(self.depthFrame.data))
+        
+
+        irImage = Image.fromarray(cyni.depthMapToImage(self.irFrame.data))
+        #colorImage = Image.fromarray(colorFrame.data)
+
+        if (save==1):
+            timestamp = time.time()
+            irImage_filename = "ir" +  str(timestamp)+".png"
+            depthImage_filename = "depth" +  str(timestamp)+".png"
+            depthImage.save("/home/madhav/Desktop/Structure-Sensor/Work/Robotic-Vision/cythonNI/examples/capture/depth"+str(timestamp)+".png")
+            #colorImage.save("capture/color"+str(timestamp)+".png")
+            irImage.save("/home/madhav/Desktop/Structure-Sensor/Work/Robotic-Vision/cythonNI/examples/capture/ir"+str(timestamp)+".png")
+
+        return depthImage, irImage, irImage_filename, depthImage_filename #, colorImage
+
+    def get_next_frame(self, save=1):
         self.depthFrame = self.depthStream.readFrame()
         self.irFrame = self.irStream.readFrame()
         # colorFrame = colorStream.readFrame()
-        print (max(self.irFrame.data.tolist()))
-
-
+    
         # TODO : Review depthMapToImage in the code below
         # TODO : Does the function depthMapToImage apply to irFrame as well????
 
         depthImage = Image.fromarray(cyni.depthMapToImage(self.depthFrame.data))
         irImage = Image.fromarray(cyni.depthMapToImage(self.irFrame.data))
         #colorImage = Image.fromarray(colorFrame.data)
-        
+
         if (save==1):
             timestamp = time.time()
-            depthImage.save("capture/depth"+str(timestamp)+".png")
+            irImage_filename = "ir" +  str(timestamp)+".png"
+            depthImage_filename = "depth" + str(timestamp)+".png" 
+            depthImage.save("/home/madhav/Desktop/Structure-Sensor/Work/Robotic-Vision/cythonNI/examples/capture/depth"+str(timestamp)+".png")
             #colorImage.save("capture/color"+str(timestamp)+".png")
-            irImage.save("capture/ir"+str(timestamp)+".png")
+            irImage.save("/home/madhav/Desktop/Structure-Sensor/Work/Robotic-Vision/cythonNI/examples/capture/ir"+str(timestamp)+".png")
 
-        return depthImage, irImage #, colorImage
+        return depthImage, irImage, irImage_filename, depthImage_filename #, colorImage
     
     def end_capture(self):
         self.device.close()
@@ -51,7 +79,7 @@ class SimpleCapture:
 if __name__ == "__main__":
     depth_capture = SimpleCapture()
     depth_capture.setup_cature()
-    depthImg, irImg = depth_capture.get_next_frame()
-    print depthImg, irImg
-    
-
+    # while 1:
+    depthImg, irImg, irImage_filename, depthImage_filename = depth_capture.get_next_frame_clean()
+    print irImage_filename
+    depth_capture.end_capture()
